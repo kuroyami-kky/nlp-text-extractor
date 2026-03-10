@@ -4,8 +4,8 @@ from app.pipeline import TextPipeline
 if __name__ == "__main__":
     pipeline = TextPipeline()
 
-    text_zh = "2024年5月我在中国北京写信，6/1飞往法国巴黎，再计划去日本东京旅游时间2025-10-01回沪。"
-    text_es = "El 3 de mayo de 2024 escribí en Lima, Perú. El 06/01/2024 viajé a Madrid, España, y luego a París, Francia. Planeo visitar Tokio, Japón, el 10-10-2025. También recuerdo que el 1 de julio de 2023 estuve en Bogotá, Colombia."
+    text_zh = "2026年3月10日,中国北京有8人参会,预算壹万二千元。"
+    text_es = "El 10 de marzo de 2026, en Perú, Lima, asistieron 8 delegados; el proyecto recibió un presupuesto de un millón quinientos mil soles para obras públicas y apoyo social comunitario local."
 
     result_zh = pipeline.process(text_zh)
     result_es = pipeline.process(text_es)
@@ -24,6 +24,10 @@ if __name__ == "__main__":
     for c in result_zh["cities"]:
         print(" ", c.text)
 
+    print ("数字:")
+    for c in result_zh["numbers"]:
+        print(" ", c.text, "->", c.value)
+
     print("\n============== Se detectó lo siguiente =================")
     print("Idioma:", result_es["language"])
     print("Fechas:")
@@ -37,3 +41,7 @@ if __name__ == "__main__":
     print("Ciudades:")
     for c in result_es["cities"]:
         print(" ", c.text)
+
+    print ("Numeros:")
+    for c in result_es["numbers"]:
+        print(" ", c.text, "->", c.value)
