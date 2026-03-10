@@ -1,0 +1,13 @@
+extract（）
+    if zh:
+        pattern_zh1 = {}
+        pattern_zh2 = {}
+        normalize1
+
+    elif es:
+        pattern_es1 = {}
+        pattern_es2 = {}
+        pattern_es3 = {}
+        normalize2
+
+    return 
