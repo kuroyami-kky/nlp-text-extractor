@@ -1,47 +1,51 @@
 from app.pipeline import TextPipeline
 
 
+def print_dates(title, dates):
+    print(title)
+    for d in dates:
+        print(" ", d)
+
+
+def print_countries(title, countries):
+    print(title)
+    for c in countries:
+        print(" ", c.text if hasattr(c, "text") else c)
+
+
+def print_cities(title, cities):
+    print(title)
+    for c in cities:
+        print(" ", c.text if hasattr(c, "text") else c)
+
+
+def print_numbers(title, numbers):
+    print(title)
+    for n in numbers:
+        print(" ", n.text, "->", n.value)
+
+
 if __name__ == "__main__":
     pipeline = TextPipeline()
 
-    text_zh = "2026年3月10日,中国北京有8人参会,预算壹万二千元。"
-    text_es = "El 10 de marzo de 2026, en Perú, Lima, asistieron 8 delegados; el proyecto recibió un presupuesto de un millón quinientos mil soles para obras públicas y apoyo social comunitario local."
+    with open("input.txt", "r", encoding="utf-8") as f:
+        text = f.read().strip()
 
-    result_zh = pipeline.process(text_zh)
-    result_es = pipeline.process(text_es)
+    result = pipeline.process(text)
 
     print("============== 检测到以下信息 =================")
-    print("中文:", result_zh["language"])
-    print("日期:")
-    for d in result_zh["dates"]:
-        print(" ", d)
+    print("主语言:", result["language"])
 
-    print("国家:")
-    for c in result_zh["countries"]:
-        print(" ", c)
+    print_dates("日期(zh):", result["dates"]["zh"])
+    print_dates("日期(es):", result["dates"]["es"])
+    print_dates("日期(all):", result["dates"]["all"])
 
-    print("城市:")
-    for c in result_zh["cities"]:
-        print(" ", c.text)
+    print_countries("国家(zh):", result["countries"]["zh"])
+    print_countries("国家(es):", result["countries"]["es"])
+    print_countries("国家(all):", result["countries"]["all"])
 
-    print ("数字:")
-    for c in result_zh["numbers"]:
-        print(" ", c.text, "->", c.value)
+    print_cities("城市(zh):", result["cities"]["zh"])
+    print_cities("城市(es):", result["cities"]["es"])
+    print_cities("城市(all):", result["cities"]["all"])
 
-    print("\n============== Se detectó lo siguiente =================")
-    print("Idioma:", result_es["language"])
-    print("Fechas:")
-    for d in result_es["dates"]:
-        print(" ", d)
-
-    print("Países:")
-    for c in result_es["countries"]:
-        print(" ", c)
-
-    print("Ciudades:")
-    for c in result_es["cities"]:
-        print(" ", c.text)
-
-    print ("Numeros:")
-    for c in result_es["numbers"]:
-        print(" ", c.text, "->", c.value)
+    print_numbers("数字(all):", result["numbers"]["all"])

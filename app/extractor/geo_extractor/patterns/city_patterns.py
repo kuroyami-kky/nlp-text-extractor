@@ -1,49 +1,320 @@
-import csv
-from pathlib import Path
-from app.extractor.geo_extractor.patterns.country_patterns import countries_es, countries_zh
+
+city_zh = [
+    "北京","上海","天津","重庆","广州","深圳","成都","武汉","杭州","南京",
+    "西安","苏州","长沙","郑州","青岛","大连","宁波","厦门","福州","合肥",
+    "哈尔滨","长春","沈阳","昆明","南宁","贵阳","太原","石家庄","济南","烟台",
+    "潍坊","临沂","徐州","南通","嘉兴","金华","台州","绍兴","珠海","佛山","东莞",
+    "中山","惠州","江门","汕头","湛江","茂名","柳州","桂林","海口","三亚","兰州","西宁",
+    "银川","乌鲁木齐","呼和浩特","拉萨","洛阳","开封","安阳","邯郸","保定","唐山","秦皇岛",
+    "沧州","衡水","邢台","德州","聊城","菏泽","枣庄","泰安","威海","日照","连云港","盐城",
+    "扬州","镇江","常州","无锡","湖州","衢州","丽水","舟山","景德镇","赣州","九江","上饶",
+    "宜春","吉安","抚州","南昌","宜昌","襄阳","荆州","黄石","十堰","荆门","孝感","咸宁",
+    "随州","恩施","常德","岳阳","株洲","湘潭","衡阳","邵阳","益阳","娄底","永州","怀化",
+    "郴州","东京","大阪","横滨","名古屋","札幌","神户","福冈","京都","广岛","仙台","川崎",
+    "埼玉","千叶","堺","冈山","新潟","熊本","鹿儿岛","长崎","大分","宫崎","静冈","滨松",
+    "富山","金泽","奈良","首尔","釜山","仁川","大邱","大田","光州","水原","高阳","城南",
+    "富川","安山","安养","龙仁","乌山","华城","昌原","全州","清州","天安","浦项","济州",
+    "平壤","南浦","开城","河内","胡志明市","海防","岘港","芹苴","芽庄","永隆","太原","南定",
+    "清化","万象","琅勃拉邦","曼谷","清迈","清莱","呵叻","春武里","芭堤雅","宋卡","合艾",
+    "普吉","雅加达","泗水","万隆","棉兰","三宝垄","望加锡","巴厘巴板","巴东","日惹","万鸦老",
+    "坤甸","马辰","巨港","雅加达南","吉隆坡","乔治市","新山","怡保","古晋","亚庇","马六甲",
+    "关丹","莎阿南","八打灵再也","新加坡","马尼拉","奎松市","达沃","宿务","三宝颜",
+    "卡加延德奥罗","伊洛伊洛","八打雁","塔克洛班","曼达维","卡洛奥坎","曼谷","加德满都",
+    "博卡拉","达卡","吉大港","库尔纳","拉杰沙希","锡尔赫特","科伦坡","康提","加勒","马累",
+    "德黑兰","伊斯法罕","设拉子","大不里士","马什哈德","库姆","克尔曼","阿巴斯港","巴格达",
+    "摩苏尔","巴士拉","纳杰夫","卡尔巴拉","埃尔比勒","安卡拉","伊斯坦布尔","伊兹密尔","布尔萨",
+    "阿达纳","加济安泰普","安塔利亚","科尼亚","开塞利","迪亚巴克尔","特拉维夫","耶路撒冷","海法",
+    "贝鲁特","大马士革","阿勒颇","安曼","科威特城","多哈","利雅得","吉达","麦加","麦地那","达曼",
+    "哈伊勒","阿布扎比","迪拜","沙迦","阿治曼","艾因","马斯喀特","塞拉莱"
+    #以上是亚洲城市 Above are Asian cities
+
+    "伦敦","伯明翰","利兹","格拉斯哥","谢菲尔德","布拉德福德","曼彻斯特","利物浦","布里斯托尔","莱斯特","诺丁汉","考文垂","桑德兰","贝尔法斯特","纽卡斯尔","布莱顿","赫尔","普利茅斯","斯托克","德比","伍尔弗汉普顿","南安普敦","朴次茅斯","雷丁","米尔顿凯恩斯","剑桥","牛津",
+    "巴黎","马赛","里昂","图卢兹","尼斯","南特","斯特拉斯堡","蒙彼利埃","波尔多","里尔","雷恩","兰斯","勒阿弗尔","圣艾蒂安","土伦","格勒诺布尔","第戎","昂热","尼姆","维勒班",
+    "柏林","汉堡","慕尼黑","科隆","法兰克福","斯图加特","杜塞尔多夫","多特蒙德","埃森","不来梅","德累斯顿","莱比锡","汉诺威","纽伦堡","杜伊斯堡","波鸿","伍珀塔尔","比勒费尔德","波恩","明斯特","卡尔斯鲁厄","曼海姆","奥格斯堡","威斯巴登","盖尔森基兴","门兴格拉德巴赫","布伦瑞克","基尔","亚琛","开姆尼茨",
+    "马德里","巴塞罗那","瓦伦西亚","塞维利亚","萨拉戈萨","马拉加","穆尔西亚","帕尔马","拉斯帕尔马斯","毕尔巴鄂","阿利坎特","科尔多瓦","巴利亚多利德","维戈","希洪","拉科鲁尼亚","格拉纳达","埃尔切","奥维耶多","特内里费圣克鲁斯",
+    "罗马","米兰","那不勒斯","都灵","巴勒莫","热那亚","博洛尼亚","佛罗伦萨","巴里","卡塔尼亚","威尼斯","维罗纳","墨西拿","帕多瓦","的里雅斯特","布雷西亚","塔兰托","普拉托","摩德纳","雷焦艾米利亚",
+    "阿姆斯特丹","鹿特丹","海牙","乌得勒支","埃因霍温","蒂尔堡","格罗宁根","阿尔梅勒","布雷达","奈梅亨",
+    "布鲁塞尔","安特卫普","根特","沙勒罗瓦","列日","布鲁日","那慕尔",
+    "维也纳","格拉茨","林茨","萨尔茨堡","因斯布鲁克",
+    "苏黎世","日内瓦","巴塞尔","洛桑","伯尔尼",
+    "哥本哈根","奥胡斯","欧登塞","奥尔堡",
+    "斯德哥尔摩","哥德堡","马尔默","乌普萨拉","韦斯特罗斯","厄勒布鲁",
+    "奥斯陆","卑尔根","特隆赫姆","斯塔万格","德拉门",
+    "赫尔辛基","埃斯波","坦佩雷","万塔","奥卢","图尔库",
+    "华沙","克拉科夫","罗兹","弗罗茨瓦夫","波兹南","格但斯克","什切青","比得哥什","卢布林","卡托维兹",
+    "布拉格","布尔诺","俄斯特拉发","比尔森","利贝雷茨",
+    "布达佩斯","德布勒森","塞格德","米什科尔茨","佩奇",
+    "布加勒斯特","克卢日纳波卡","蒂米什瓦拉","雅西","康斯坦察","克拉约瓦","布拉索夫","加拉茨","普洛耶什蒂",
+    "索非亚","普罗夫迪夫","瓦尔纳","布尔加斯","鲁塞",
+    "雅典","塞萨洛尼基","帕特雷","伊拉克利翁","拉里萨",
+    "里斯本","波尔图","维拉诺瓦德加亚","布拉加","科英布拉",
+    "贝尔格莱德","诺维萨德","尼什","克拉古耶瓦茨",
+    "萨格勒布","斯普利特","里耶卡","奥西耶克",
+    "卢布尔雅那","马里博尔",
+    "斯科普里","比托拉",
+    "地拉那","都拉斯",
+    "基辅","哈尔科夫","敖德萨","第聂伯罗","顿涅茨克","扎波罗热","利沃夫","克里维里赫","尼古拉耶夫","马里乌波尔",
+    "莫斯科","圣彼得堡","新西伯利亚","叶卡捷琳堡","下诺夫哥罗德","喀山","车里雅宾斯克","鄂木斯克","萨马拉","顿河畔罗斯托夫","乌法","克拉斯诺亚尔斯克","彼尔姆","沃罗涅日","伏尔加格勒","克拉斯诺达尔","萨拉托夫","秋明","托木斯克"
+    #以上是欧洲城市 Above are European cities
+
+    "纽约","洛杉矶","芝加哥","休斯敦","菲尼克斯","费城","圣安东尼奥","圣迭戈","达拉斯","圣何塞",
+    "奥斯汀","杰克逊维尔","旧金山","哥伦布","印第安纳波利斯","沃斯堡","夏洛特","西雅图","丹佛","华盛顿",
+    "波士顿","埃尔帕索","纳什维尔","底特律","俄克拉荷马城","波特兰","拉斯维加斯","孟菲斯","路易维尔","巴尔的摩",
+    "密尔沃基","阿尔伯克基","图森","弗雷斯诺","萨克拉门托","堪萨斯城","亚特兰大","迈阿密","奥马哈","罗利",
+    "长滩","科罗拉多斯普林斯","弗吉尼亚海滩","奥克兰","明尼阿波利斯","塔尔萨","阿灵顿","坦帕","新奥尔良","威奇托",
+    "克利夫兰","巴克斯菲尔德","奥罗拉","阿纳海姆","檀香山","圣塔安娜","里弗赛德","列克星敦","斯托克顿","亨德森",
+    "圣保罗","辛辛那提","圣路易斯","匹兹堡","格林斯伯勒","林肯","普莱诺","奥兰多","欧文","纽瓦克",
+    "托莱多","德卢斯","查塔努加","斯波坎","塔科马","奥克斯纳德","方塔纳","莫德斯托","莫比尔","布法罗",
+    "罗切斯特","扬克斯","伍斯特","斯普林菲尔德","纽黑文","哈特福德","普罗维登斯","伯灵顿","罗利","费耶特维尔",
+    "多伦多","蒙特利尔","温哥华","卡尔加里","埃德蒙顿","渥太华","温尼伯","魁北克市","汉密尔顿","基奇纳",
+    "伦敦","维多利亚","哈利法克斯","萨斯卡通","里贾纳","舍布鲁克","三河市","萨德伯里","圣约翰","弗雷德里克顿",
+    "墨西哥城","瓜达拉哈拉","蒙特雷","普埃布拉","蒂华纳","莱昂","华雷斯城","托卢卡","克雷塔罗","梅里达",
+    "圣路易斯波托西","阿瓜斯卡连特斯","奇瓦瓦","莫雷利亚","塔毛利帕斯","科阿特萨科阿尔科斯","塔帕丘拉","坎昆","阿卡普尔科","埃莫西约",
+    "圣多明各","圣地亚哥","太子港","太子港市","金斯敦","蒙特哥贝","拿骚","自由港","伯利兹城","巴拿马城",
+    "圣何塞","圣萨尔瓦多","危地马拉城","特古西加尔巴","马那瓜"
+    #以上是北美洲城市 Above are North American cities
+
+    "圣保罗","里约热内卢","巴西利亚","萨尔瓦多","福塔莱萨","贝洛奥里藏特","玛瑙斯","库里蒂巴","累西腓","阿雷格里港",
+    "贝伦","戈亚尼亚","坎皮纳斯","圣路易斯","马塞约","纳塔尔","特雷西纳","若昂佩索阿","阿拉卡茹","库亚巴",
+    "坎皮纳格兰德","隆德里纳","马林加","弗洛里亚诺波利斯","维多利亚","迪亚德马","瓜鲁柳斯","圣贝尔纳多杜坎普","圣安德烈","索罗卡巴",
+    "布宜诺斯艾利斯","科尔多瓦","罗萨里奥","门多萨","图库曼","拉普拉塔","马德普拉塔","萨尔塔","圣菲","圣胡安",
+    "内乌肯","科连特斯","巴伊亚布兰卡","波萨达斯","圣地亚哥-德尔埃斯特罗","里奥夸尔托","圣费尔南多德尔瓦列德卡塔马卡","拉里奥哈",
+    "圣地亚哥","瓦尔帕莱索","康塞普西翁","拉塞雷纳","安托法加斯塔","特木科","兰卡瓜","塔尔卡","奇廉","伊基克",
+    "阿里卡","蓬塔阿雷纳斯","科皮亚波","奥索尔诺","卡斯特罗","瓦尔迪维亚",
+    "利马","阿雷基帕","特鲁希略","奇克拉约","皮乌拉","库斯科","伊基托斯","万卡约","查查波亚斯","塔克纳",
+    "卡哈马卡","普卡尔帕","塔拉波托","奇姆博特","瓦拉斯","莫克瓜",
+    "波哥大","麦德林","卡利","巴兰基亚","卡塔赫纳","库库塔","布卡拉曼加","佩雷拉","圣玛尔塔","伊瓦格",
+    "马尼萨莱斯","帕斯托","内瓦","阿尔梅尼亚","蒙特里亚","比亚维森西奥","索阿查",
+    "加拉加斯","马拉开波","瓦伦西亚","巴基西梅托","马拉凯","圭亚那城","巴塞罗那","梅里达","圣克里斯托瓦尔","库马纳",
+    "拉巴斯","圣克鲁斯","科恰班巴","苏克雷","奥鲁罗","塔里哈","波托西",
+    "基多","瓜亚基尔","昆卡","马查拉","洛哈","安巴托","曼塔","波托维耶霍","埃斯梅拉达斯",
+    "亚松森","埃斯特城","恩卡纳西翁","圣洛伦索",
+    "蒙得维的亚","萨尔托","派桑杜","里维拉",
+    "乔治敦","新阿姆斯特丹",
+    "帕拉马里博"
+    #以上是南美洲城市 Above are South American cities
+
+    "悉尼","墨尔本","布里斯班","珀斯","阿德莱德","黄金海岸","堪培拉","纽卡斯尔","卧龙岗","洛根市",
+    "吉朗","霍巴特","汤斯维尔","凯恩斯","达尔文","图文巴","巴拉瑞特","本迪戈","奥尔伯里","拉筹伯谷",
+    "帕拉马塔","布莱克敦","彭里斯","戈斯福德","中央海岸","曼利","利物浦","坎贝尔敦","邦迪",
+    "奥克兰","惠灵顿","基督城","汉密尔顿","陶朗加","但尼丁","北帕默斯顿","内皮尔","黑斯廷斯","新普利茅斯",
+    "罗托鲁瓦","旺阿雷","因弗卡吉尔",
+    "莫尔兹比港","莱城",
+    "苏瓦","劳托卡",
+    "霍尼亚拉",
+    "阿皮亚",
+    "努库阿洛法"
+    #以上是大洋洲城市 The above are cities in Oceania
+
+    "开罗","亚历山大","吉萨","舒布拉海迈","塞得港","苏伊士","曼苏拉","坦塔","阿斯旺","卢克索",
+    "阿尔及尔","奥兰","君士坦丁","安纳巴","布利达","巴特纳","贝贾亚","提济乌祖","塞提夫",
+    "卡萨布兰卡","拉巴特","非斯","马拉喀什","丹吉尔","梅克内斯","阿加迪尔","乌季达","得土安",
+    "突尼斯","斯法克斯","苏塞","加贝斯","比塞大","凯鲁万",
+    "的黎波里","班加西","米苏拉塔","扎维耶",
+    "努瓦克肖特","努瓦迪布",
+    "达喀尔","图巴","捷斯","考拉克","圣路易",
+    "班珠尔","塞雷昆达",
+    "比绍",
+    "科纳克里","恩泽雷科雷",
+    "弗里敦","博城",
+    "蒙罗维亚",
+    "阿比让","布瓦凯","达洛亚","亚穆苏克罗","圣佩德罗",
+    "阿克拉","库马西","塔马利","塞康第-塔科拉迪",
+    "洛美",
+    "科托努","波多诺伏","帕拉库",
+    "拉各斯","卡诺","伊巴丹","阿布贾","卡杜纳","哈科特港","贝宁城","迈杜古里","扎里亚","阿巴","乔斯","伊洛林",
+    "尼亚美","津德尔","马拉迪",
+    "瓦加杜古","博博迪乌拉索",
+    "巴马科","锡加索",
+    "恩贾梅纳",
+    "喀土穆","恩图曼","喀土穆北",
+    "亚的斯亚贝巴","德雷达瓦","默克莱","贡德尔","巴赫达尔",
+    "阿斯马拉",
+    "吉布提",
+    "摩加迪沙","哈尔格萨","博萨索",
+    "内罗毕","蒙巴萨","基苏木","纳库鲁","埃尔多雷特",
+    "坎帕拉","金贾","姆巴莱",
+    "基加利",
+    "布琼布拉",
+    "达累斯萨拉姆","姆万扎","阿鲁沙","多多马","姆贝亚",
+    "卢萨卡","恩多拉","基特韦","卡布韦",
+    "哈拉雷","布拉瓦约","穆塔雷",
+    "哈博罗内","弗朗西斯敦",
+    "温得和克",
+    "约翰内斯堡","开普敦","德班","比勒陀利亚","伊丽莎白港","布隆方丹","东伦敦","金伯利","彼得马里茨堡",
+    "马塞卢",
+    "姆巴巴内",
+    "马普托","贝拉","楠普拉",
+    "安塔那那利佛","图阿马西纳","安齐拉纳纳",
+    "路易港",
+    "维多利亚"
+    #以上是非洲城市 Above are African cities
+]
 
 
-def load_city_patterns():
-    """
-    从 cities_multilingual.csv 读取城市名称和别名，
-    返回一个去重后的城市名称列表。
-    """
-    csv_path = Path(__file__).parent / "cities_multilingual.csv"
+city_es = [
+    "Tokio","Osaka","Yokohama","Nagoya","Sapporo","Kobe","Fukuoka","Kioto","Hiroshima","Sendai",
+    "Kawasaki","Saitama","Chiba","Sakai","Okayama","Niigata","Kumamoto","Kagoshima","Nagasaki","Oita",
+    "Miyazaki","Shizuoka","Hamamatsu","Toyama","Kanazawa","Nara",
+    "Seúl","Busan","Incheon","Daegu","Daejeon","Gwangju","Suwon","Goyang","Seongnam","Bucheon",
+    "Ansan","Anyang","Yongin","Changwon","Jeonju","Cheongju","Cheonan","Pohang","Jeju",
+    "Pionyang","Nampo","Kaesong",
+    "Pekín","Beijing","Shanghái","Cantón","Guangzhou","Shenzhen","Tianjin","Chongqing","Chengdu","Wuhan","Hangzhou","Nankín",
+    "Xi'an","Suzhou","Changsha","Zhengzhou","Qingdao","Dalian","Ningbo","Xiamen","Fuzhou","Hefei",
+    "Harbin","Changchun","Shenyang","Kunming","Nanning","Guiyang","Taiyuan","Shijiazhuang","Jinan",
+    "Yantai","Weifang","Linyi","Xuzhou","Nantong",
+    "Bangkok","Chiang Mai","Chiang Rai","Nakhon Ratchasima","Chon Buri","Pattaya","Songkhla","Hat Yai","Phuket",
+    "Hanoi","Ciudad Ho Chi Minh","Hai Phong","Da Nang","Can Tho","Nha Trang",
+    "Yakarta","Surabaya","Bandung","Medan","Semarang","Makassar","Balikpapan","Padang","Yogyakarta","Manado",
+    "Pontianak","Banjarmasin","Palembang",
+    "Kuala Lumpur","George Town","Johor Bahru","Ipoh","Kuching","Kota Kinabalu","Malaca","Kuantan","Shah Alam","Petaling Jaya",
+    "Singapur",
+    "Manila","Ciudad Quezón","Dávao","Cebú","Zamboanga","Cagayán de Oro","Iloílo",
+    "Katmandú","Pokhara",
+    "Daca","Chittagong","Khulna","Rajshahi","Sylhet",
+    "Colombo","Kandy","Galle",
+    "Malé",
+    "Teherán","Isfahán","Shiraz","Tabriz","Mashhad","Qom","Kermán","Bandar Abás",
+    "Bagdad","Mosul","Basora","Najaf","Karbala","Erbil",
+    "Ankara","Estambul","Esmirna","Bursa","Adana","Gaziantep","Antalya","Konya","Kayseri","Diyarbakir",
+    "Tel Aviv","Jerusalén","Haifa",
+    "Beirut",
+    "Damasco","Alepo",
+    "Amán",
+    "Ciudad de Kuwait",
+    "Doha",
+    "Riad","Yeda","La Meca","Medina","Dammam",
+    "Abu Dabi","Dubái","Sharjah","Ajmán","Al Ain",
+    "Mascate","Salalah",
+    "Taipéi","Kaohsiung","Taichung","Tainan","Hsinchu"
+    #以上是亚洲城市 Above are Asian cities
 
-    city_names = []
-    seen = set()
+    "Londres","Birmingham","Leeds","Glasgow","Sheffield","Bradford","Manchester","Liverpool","Bristol","Leicester","Nottingham","Coventry","Sunderland","Belfast","Newcastle","Brighton","Hull","Plymouth","Derby","Wolverhampton",
+    "París","Marsella","Lyon","Toulouse","Niza","Nantes","Estrasburgo","Montpellier","Burdeos","Lille","Rennes","Reims","Le Havre","Saint-Étienne","Toulon","Grenoble","Dijón","Angers","Nimes",
+    "Berlín","Hamburgo","Múnich","Colonia","Fráncfort","Stuttgart","Düsseldorf","Dortmund","Essen","Bremen","Dresde","Leipzig","Hanóver","Núremberg","Duisburgo","Bochum","Wuppertal","Bielefeld","Bonn","Münster","Karlsruhe","Mannheim","Augsburgo","Wiesbaden",
+    "Madrid","Barcelona","Valencia","Sevilla","Zaragoza","Málaga","Murcia","Palma","Las Palmas","Bilbao","Alicante","Córdoba","Valladolid","Vigo","Gijón","La Coruña","Granada","Elche","Oviedo",
+    "Roma","Milán","Nápoles","Turín","Palermo","Génova","Bolonia","Florencia","Bari","Catania","Venecia","Verona","Mesina","Padua","Trieste","Brescia","Tarento","Módena","Reggio Emilia",
+    "Ámsterdam","Róterdam","La Haya","Utrecht","Eindhoven","Tilburgo","Groninga","Almere","Breda","Nimega",
+    "Bruselas","Amberes","Gante","Charleroi","Lieja","Brujas","Namur",
+    "Viena","Graz","Linz","Salzburgo","Innsbruck",
+    "Zúrich","Ginebra","Basilea","Lausana","Berna",
+    "Copenhague","Aarhus","Odense","Aalborg",
+    "Estocolmo","Gotemburgo","Malmö","Upsala","Västerås","Örebro",
+    "Oslo","Bergen","Trondheim","Stavanger",
+    "Helsinki","Espoo","Tampere","Vantaa","Oulu","Turku",
+    "Varsovia","Cracovia","Lodz","Wroclaw","Poznan","Gdansk","Szczecin","Bydgoszcz","Lublin","Katowice",
+    "Praga","Brno","Ostrava","Plzen","Liberec",
+    "Budapest","Debrecen","Szeged","Miskolc","Pécs",
+    "Bucarest","Cluj-Napoca","Timisoara","Iasi","Constanza","Craiova","Brasov","Galati","Ploiesti",
+    "Sofía","Plovdiv","Varna","Burgas","Ruse",
+    "Atenas","Tesalónica","Patras","Heraclión","Larisa",
+    "Lisboa","Oporto","Braga","Coímbra",
+    "Belgrado","Novi Sad","Nis","Kragujevac",
+    "Zagreb","Split","Rijeka","Osijek",
+    "Ljubliana","Maribor",
+    "Skopie","Bitola",
+    "Tirana","Durrës",
+    "Kiev","Járkov","Odesa","Dnipro","Leópolis",
+    "Moscú","San Petersburgo","Novosibirsk","Ekaterimburgo","Nizhni Nóvgorod","Kazán","Cheliábinsk","Omsk","Samara","Rostov del Don","Ufá","Krasnoyarsk","Perm","Vorónezh","Volgogrado","Krasnodar"
+    #以上是欧洲城市 Above are European cities
 
-    # 读取国家名称，做冲突过滤
-    country_names = set()
-    for name in countries_zh:
-        country_names.add(name.lower())
+    "Nueva York","Los Ángeles","Chicago","Houston","Phoenix","Filadelfia","San Antonio","San Diego","Dallas","San José",
+    "Austin","Jacksonville","San Francisco","Columbus","Indianápolis","Fort Worth","Charlotte","Seattle","Denver","Washington",
+    "Boston","El Paso","Nashville","Detroit","Oklahoma City","Portland","Las Vegas","Memphis","Louisville","Baltimore",
+    "Milwaukee","Albuquerque","Tucson","Fresno","Sacramento","Kansas City","Atlanta","Miami","Omaha","Raleigh",
+    "Long Beach","Colorado Springs","Virginia Beach","Oakland","Minneapolis","Tulsa","Arlington","Tampa","Nueva Orleans","Wichita",
+    "Cleveland","Bakersfield","Aurora","Anaheim","Honolulu","Santa Ana","Riverside","Lexington","Stockton","Henderson",
+    "Saint Paul","Cincinnati","San Luis","Pittsburgh","Greensboro","Lincoln","Plano","Orlando","Irvine","Newark",
+    "Toledo","Buffalo","Rochester","Yonkers","Worcester","Springfield","New Haven","Hartford","Providence",
+    "Toronto","Montreal","Vancouver","Calgary","Edmonton","Ottawa","Winnipeg","Ciudad de Quebec","Hamilton","Kitchener",
+    "London","Victoria","Halifax","Saskatoon","Regina","Sherbrooke","Trois-Rivières","Sudbury","Saint John","Fredericton",
+    "Ciudad de México","Guadalajara","Monterrey","Puebla","Tijuana","León","Ciudad Juárez","Toluca","Querétaro","Mérida",
+    "San Luis Potosí","Aguascalientes","Chihuahua","Morelia","Hermosillo","Cancún","Acapulco",
+    "Santo Domingo","Santiago de los Caballeros",
+    "Puerto Príncipe",
+    "Kingston","Montego Bay",
+    "Nassau","Freeport",
+    "Ciudad de Belice",
+    "Ciudad de Panamá",
+    "San José",
+    "San Salvador",
+    "Ciudad de Guatemala",
+    "Tegucigalpa",
+    "Managua"
+    #以上是北美洲城市 Above are North American cities
 
-    for name in countries_es:
-        country_names.add(name.lower())
+    "São Paulo","Río de Janeiro","Brasilia","Salvador","Fortaleza","Belo Horizonte","Manaus","Curitiba","Recife","Porto Alegre",
+    "Belém","Goiânia","Campinas","São Luís","Maceió","Natal","Teresina","João Pessoa","Aracaju","Cuiabá",
+    "Londrina","Maringá","Florianópolis","Vitória","Guarulhos","Santo André","São Bernardo do Campo","Sorocaba",
+    "Buenos Aires","Córdoba","Rosario","Mendoza","San Miguel de Tucumán","La Plata","Mar del Plata","Salta","Santa Fe","San Juan",
+    "Neuquén","Corrientes","Bahía Blanca","Posadas","Santiago del Estero","Río Cuarto","La Rioja",
+    "Santiago","Valparaíso","Concepción","La Serena","Antofagasta","Temuco","Rancagua","Talca","Chillán","Iquique",
+    "Arica","Punta Arenas","Copiapó","Osorno","Valdivia",
+    "Lima","Arequipa","Trujillo","Chiclayo","Piura","Cusco","Iquitos","Huancayo","Tacna","Cajamarca","Pucallpa","Tarapoto","Chimbote",
+    "Bogotá","Medellín","Cali","Barranquilla","Cartagena","Cúcuta","Bucaramanga","Pereira","Santa Marta","Ibagué",
+    "Manizales","Pasto","Neiva","Armenia","Montería","Villavicencio","Soacha",
+    "Caracas","Maracaibo","Valencia","Barquisimeto","Maracay","Ciudad Guayana","Barcelona","Mérida","San Cristóbal","Cumaná",
+    "La Paz","Santa Cruz de la Sierra","Cochabamba","Sucre","Oruro","Tarija","Potosí",
+    "Quito","Guayaquil","Cuenca","Machala","Loja","Ambato","Manta","Portoviejo","Esmeraldas",
+    "Asunción","Ciudad del Este","Encarnación","San Lorenzo",
+    "Montevideo","Salto","Paysandú","Rivera",
+    "Georgetown","New Amsterdam",
+    "Paramaribo"
+    #以上是南美洲城市 Above are South American cities
 
-    with open(csv_path, "r", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
+    "Sídney","Melbourne","Brisbane","Perth","Adelaida","Gold Coast","Canberra","Newcastle","Wollongong","Logan City",
+    "Geelong","Hobart","Townsville","Cairns","Darwin","Toowoomba","Ballarat","Bendigo","Albury","Launceston",
+    "Parramatta","Blacktown","Penrith","Gosford","Liverpool","Campbelltown",
+    "Auckland","Wellington","Christchurch","Hamilton","Tauranga","Dunedin","Palmerston North","Napier","Hastings","New Plymouth",
+    "Rotorua","Whangarei","Invercargill",
+    "Port Moresby","Lae",
+    "Suva","Lautoka",
+    "Honiara",
+    "Apia",
+    "Nukuʻalofa"
+    #以上是大洋洲城市 The above are cities in Oceania
 
-        for row in reader:
-            # 1. 主名称
-            name = row["name"].strip()
-            if name:
-                key = name.lower()
-                if key not in seen and key not in country_names:
-                    city_names.append(name)
-                    seen.add(key)
-
-            # 2. 别名
-            aliases = row["aliases"].strip()
-            if aliases:
-                for alias in aliases.split("|"):
-                    alias = alias.strip()
-                    if not alias:
-                        continue
-
-                    key = alias.lower()
-                    if key not in seen and key not in country_names:
-                        city_names.append(alias)
-                        seen.add(key)
-
-    return city_names
+    "El Cairo","Alejandría","Guiza","Puerto Saíd","Suez","Mansura","Tanta","Asuán","Luxor",
+    "Argel","Orán","Constantina","Annaba","Blida","Batna","Bejaia","Sétif",
+    "Casablanca","Rabat","Fez","Marrakech","Tánger","Mequinez","Agadir","Uchda","Tetuán",
+    "Túnez","Sfax","Susa","Gabes","Bizerta","Kairuán",
+    "Trípoli","Bengasi","Misurata","Zawiya",
+    "Nuakchot","Nuadibú",
+    "Dakar","Touba","Thiès","Kaolack","Saint-Louis",
+    "Banjul","Serekunda",
+    "Bisáu",
+    "Conakri",
+    "Freetown","Bo",
+    "Monrovia",
+    "Abiyán","Bouaké","Daloa","Yamusukro","San Pedro",
+    "Acra","Kumasi","Tamale","Sekondi-Takoradi",
+    "Lomé",
+    "Cotonú","Porto Novo","Parakou",
+    "Lagos","Kano","Ibadan","Abuya","Kaduna","Port Harcourt","Benín","Maiduguri","Zaria","Aba","Jos","Ilorin",
+    "Niamey","Zinder","Maradi",
+    "Uagadugú","Bobo-Dioulasso",
+    "Bamako","Sikasso",
+    "Yamena",
+    "Jartum","Omdurmán","Jartum Norte",
+    "Adís Abeba","Dire Dawa","Mekele","Gondar","Bahir Dar",
+    "Asmara",
+    "Yibuti",
+    "Mogadiscio","Hargeisa","Bosaso",
+    "Nairobi","Mombasa","Kisumu","Nakuru","Eldoret",
+    "Kampala","Jinja","Mbale",
+    "Kigali",
+    "Bujumbura",
+    "Dar es Salaam","Mwanza","Arusha","Dodoma","Mbeya",
+    "Lusaka","Ndola","Kitwe","Kabwe",
+    "Harare","Bulawayo","Mutare",
+    "Gaborone","Francistown",
+    "Windhoek",
+    "Johannesburgo","Ciudad del Cabo","Durban","Pretoria","Puerto Elizabeth","Bloemfontein","East London","Kimberley","Pietermaritzburg",
+    "Maseru",
+    "Mbabane",
+    "Maputo","Beira","Nampula",
+    "Antananarivo","Toamasina","Antsiranana",
+    "Port Louis",
+    "Victoria"
+    #以上是非洲城市 Above are African cities
+]

@@ -40,24 +40,69 @@ class TextPipeline:
 
         return filtered
     
+    def _deduplicate_entities(self, entities):
+        seen = set()
+        unique = []
+
+        for e in entities:
+            if e.text not in seen:
+                seen.add(e.text)
+                unique.append(e)
+
+        return unique
 
     def process(self, text: str):
-        lang = self.detect_language(text)
+        
+        detected_lang = self.detect_language(text)
 
-        dates = self.date_extractor.extract(text, lang)
+        dates_zh = self.date_extractor.extract(text, "zh")
+        dates_es = self.date_extractor.extract(text, "es")
+        dates = dates_zh + dates_es
 
-        countries = self.country_extractor.extract(text, lang)
-        cities = self.city_extractor.extract(text, lang)
+        countries_zh = self.country_extractor.extract(text, "zh")
+        countries_zh = self._deduplicate_entities(countries_zh)
+        countries_es = self.country_extractor.extract(text, "es")
+        countries_es = self._deduplicate_entities(countries_es)
+        countries = countries_zh + countries_es
+        countries = self._deduplicate_entities(countries)
 
-        numbers = self.number_extractor.extract(text, lang)
-        numbers = self._filter_numbers_in_dates(numbers, dates)
+        cities_zh = self.city_extractor.extract(text, "zh")
+        cities_zh = self._deduplicate_entities(cities_zh)
+        cities_es = self.city_extractor.extract(text, "es")
+        cities_es = self._deduplicate_entities(cities_es)
+        cities = cities_zh + cities_es
+        cities = self._deduplicate_entities(cities)
+
+        numbers_zh = self.number_extractor.extract(text, "zh")
+        numbers_zh = self._filter_numbers_in_dates(numbers_zh, dates)
+        numbers_es = self.number_extractor.extract(text, "es")
+        numbers_es = self._filter_numbers_in_dates(numbers_es, dates)
+        numbers = numbers_zh + numbers_es
+        numbers_all = self._deduplicate_entities(numbers)
+        numbers_all = self._filter_numbers_in_dates(numbers_all, dates)
 
         return {
-            "language": lang,
-            "dates": dates,
-            "countries": countries,
-            "cities": cities,
-            "numbers": numbers
+            "language": detected_lang,
+            "dates": {
+                "zh": dates_zh,
+                "es": dates_es,
+                "all": dates
+            },
+            "countries": {
+                "zh": countries_zh,
+                "es": countries_es,
+                "all": countries
+            },
+            "cities": {
+                "zh": cities_zh,
+                "es": cities_es,
+                "all": cities
+            },
+            "numbers": {
+                "zh": numbers_zh,
+                "es": numbers_es, 
+                "all": numbers_all
+            }
         }
         
 

@@ -84,7 +84,10 @@ def normalize_spanish_number(text):
 
     for token in tokens:
 
-        if token in ES_UNITS:
+        if token.isdigit():
+            current += int(token)
+        
+        elif token in ES_UNITS:
             current += ES_UNITS[token]
 
         elif token in ES_TENS:
@@ -133,7 +136,7 @@ def normalize_number(text):
     if re.fullmatch(r"[零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟]+", text):
         return normalize_chinese_number(text)
 
-    if any(word in text.lower() for word in ["mil","millón","millones"]):
+    if any(word in text.lower() for word in ES_SCALES):
         return normalize_spanish_number(text)
 
     return None
