@@ -2,6 +2,7 @@ from app.extractor.date_extractor.extractor import DateExtractor
 from app.extractor.geo_extractor.country_extractor import CountryExtractor
 from app.extractor.geo_extractor.city_extractor import CityExtractor
 from app.extractor.number_extractor.number_extractor import NumberExtractor
+from app.extractor.organization_extractor.org_extractor import OrganizationExtractor
 import spacy
 
 class TextPipeline:
@@ -13,6 +14,7 @@ class TextPipeline:
         self.country_extractor = CountryExtractor()
         self.city_extractor = CityExtractor()
         self.number_extractor = NumberExtractor(self.nlp)
+        self.org_extractor = OrganizationExtractor(self.nlp)
 
     def detect_language(self, text: str):
         # 目前只是占位逻辑
@@ -50,6 +52,25 @@ class TextPipeline:
                 unique.append(e)
 
         return unique
+    
+    def _filter_countries_in_orgs(self, countries, orgs):
+
+        filtered = []
+
+        for c in countries:
+
+            overlap = False
+
+            for o in orgs:
+                if c.start >= o.start and c.end <= o.end:
+                    overlap = True
+                    break
+
+            if not overlap:
+                filtered.append(c)
+
+        return filtered
+    
 
     def process(self, text: str):
         
@@ -65,6 +86,7 @@ class TextPipeline:
         countries_es = self._deduplicate_entities(countries_es)
         countries = countries_zh + countries_es
         countries = self._deduplicate_entities(countries)
+        
 
         cities_zh = self.city_extractor.extract(text, "zh")
         cities_zh = self._deduplicate_entities(cities_zh)
@@ -80,6 +102,15 @@ class TextPipeline:
         numbers = numbers_zh + numbers_es
         numbers_all = self._deduplicate_entities(numbers)
         numbers_all = self._filter_numbers_in_dates(numbers_all, dates)
+
+        organizations_zh = self.org_extractor.extract(text, "zh")
+        organizations_zh = self._deduplicate_entities(organizations_zh)
+        organizations_es = self.org_extractor.extract(text, "es")
+        organizations_es = self._deduplicate_entities(organizations_es)
+        organizations  = organizations_zh + organizations_es
+        organizations = self._deduplicate_entities(organizations)
+        countries = self._filter_countries_in_orgs(countries, organizations)
+
 
         return {
             "language": detected_lang,
@@ -102,7 +133,12 @@ class TextPipeline:
                 "zh": numbers_zh,
                 "es": numbers_es, 
                 "all": numbers_all
-            }
+            },
+            "organizations": {
+                "zh": organizations_zh,
+                "es": organizations_es,
+                "all": organizations
+            },
         }
         
 

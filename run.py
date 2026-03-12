@@ -24,6 +24,11 @@ def print_numbers(title, numbers):
     for n in numbers:
         print(" ", n.text, "->", n.value)
 
+def print_organizations(title, organizations):
+    print(title)
+    for o in organizations:
+        print(" ", o.text if hasattr(o, "text") else o)
+
 
 if __name__ == "__main__":
     pipeline = TextPipeline()
@@ -49,3 +54,7 @@ if __name__ == "__main__":
     print_cities("城市(all):", result["cities"]["all"])
 
     print_numbers("数字(all):", result["numbers"]["all"])
+
+    print_organizations("组织(zh):", result["organizations"]["zh"])
+    print_organizations("组织(es):", result["organizations"]["es"])
+    print_organizations("组织(all):", result["organizations"]["all"])
