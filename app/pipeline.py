@@ -3,18 +3,22 @@ from app.extractor.geo_extractor.country_extractor import CountryExtractor
 from app.extractor.geo_extractor.city_extractor import CityExtractor
 from app.extractor.number_extractor.number_extractor import NumberExtractor
 from app.extractor.organization_extractor.org_extractor import OrganizationExtractor
+from app.extractor.person_extractor.person_extractor import PersonExtractor
+
+
 import spacy
 
 class TextPipeline:
     def __init__(self, language: str = "auto"):
         self.language = language
         
-        self.nlp = spacy.blank("xx")
+        self.nlp = spacy.load("es_core_news_md")
         self.date_extractor = DateExtractor()
         self.country_extractor = CountryExtractor()
         self.city_extractor = CityExtractor()
         self.number_extractor = NumberExtractor(self.nlp)
         self.org_extractor = OrganizationExtractor(self.nlp)
+        self.person_extractor = PersonExtractor(self.nlp)
 
     def detect_language(self, text: str):
         # 目前只是占位逻辑
@@ -70,6 +74,29 @@ class TextPipeline:
                 filtered.append(c)
 
         return filtered
+
+    def _filter_nested_persons(self, persons):
+
+        filtered = []
+
+        for p in persons:
+
+            contained = False
+
+            for other in persons:
+
+                if p == other:
+                    continue
+
+                if p.start >= other.start and p.end <= other.end:
+                    if (other.end - other.start) > (p.end - p.start):
+                        contained = True
+                        break
+
+            if not contained:
+                filtered.append(p)
+
+        return filtered
     
 
     def process(self, text: str):
@@ -112,6 +139,21 @@ class TextPipeline:
         countries = self._filter_countries_in_orgs(countries, organizations)
 
 
+        persons_zh = []
+        persons_es = []
+
+        if detected_lang =="zh":
+            persons_zh = self.person_extractor.extract(text, "zh")
+        elif detected_lang == "es":
+            persons_es = self.person_extractor.extract(text, "es")
+        persons_zh = self._deduplicate_entities(persons_zh)
+        persons_zh = self._filter_nested_persons(persons_zh)
+        persons_es = self._deduplicate_entities(persons_es)
+        persons = persons_zh + persons_es
+        persons = self._deduplicate_entities(persons)
+       
+
+
         return {
             "language": detected_lang,
             "dates": {
@@ -138,6 +180,11 @@ class TextPipeline:
                 "zh": organizations_zh,
                 "es": organizations_es,
                 "all": organizations
+            },
+            "persons": {
+                "zh": persons_zh,
+                "es": persons_es,
+                "all": persons
             },
         }
         

@@ -117,6 +117,12 @@ org_zh = [
     "越秀地产股份有限公司","合景泰富集团控股有限公司","中国奥园集团股份有限公司","新城控股集团股份有限公司","中国金茂控股集团有限公司","中国海外发展有限公司",
     "华侨城集团有限公司","首创集团有限公司","首开集团有限公司","光明食品（集团）有限公司","中粮集团有限公司","益海嘉里集团","蒙牛乳业有限公司","伊利集团",
     "娃哈哈集团有限公司","农夫山泉股份有限公司","统一企业中国控股有限公司","康师傅控股有限公司",
+    #常见新闻媒体
+    "新华社","人民日报","中央广播电视总台","中国新闻社","光明日报","经济日报","环球时报","中国日报","南方日报","南方周末","南方都市报","北京日报","新京报",
+    "澎湃新闻","界面新闻","财新传媒","第一财经","凤凰卫视","香港电台","无线电视新闻","有线电视新闻","美国有线电视新闻网","福克斯新闻","美国全国广播公司",
+    "美国广播公司","哥伦比亚广播公司","英国广播公司","路透社","美联社","彭博社","法新社","半岛电视台","德国之声","俄罗斯卫星通讯社","今日俄罗斯电视台",
+    "日本广播协会","共同社","时事通讯社","朝日新闻社","读卖新闻社","韩联社","韩国广播公司","新加坡报业控股","海峡时报","印度时报","印度报业托拉斯",
+    "澳大利亚广播公司","加拿大广播公司","环球邮报","多伦多星报","墨西哥环球报","巴西环球电视台"
 ]
 
 org_es = [
@@ -338,4 +344,13 @@ org_es = [
     "Yanghe Distillery","Shanxi Xinghuacun Fen Wine Factory","Beijing Yanjing Brewery","Mengniu Dairy","Yili Industrial Group",
     "Bright Dairy & Food","China Mengniu Dairy",
 
+    #新闻机构
+    "Agencia de Noticias Xinhua","Diario del Pueblo","Grupo de Medios de China","Agencia de Noticias China","Diario Guangming","Diario Económico",
+    "Global Times","China Daily","Diario del Sur","Fin de Semana del Sur","Metropolis Daily del Sur","Diario de Pekín","The Beijing News","The Paper",
+    "Jiemian News","Caixin Media","China Business Network","Phoenix Television","Radio Televisión de Hong Kong","Noticias de Television Broadcasts Limited",
+    "Noticias de Cable Television Hong Kong","Cable News Network","Fox News Channel","National Broadcasting Company","American Broadcasting Company",
+    "Columbia Broadcasting System","British Broadcasting Corporation","Reuters","Associated Press","Bloomberg News","Agence France-Presse",
+    "Al Jazeera Media Network","Deutsche Welle","Sputnik News","Russia Today","Nippon Hoso Kyokai","Kyodo News","Jiji Press","Asahi Shimbun","Yomiuri Shimbun",
+    "Yonhap News Agency","Korean Broadcasting System","Singapore Press Holdings","The Straits Times","The Times of India","Press Trust of India",
+    "Australian Broadcasting Corporation","Canadian Broadcasting Corporation","The Globe and Mail","Toronto Star","El Universal","Grupo Globo"
 ]

@@ -5,7 +5,6 @@ from .entity import OrganizationEntity
 class OrganizationExtractor: 
     def __init__(self,nlp):
         self.nlp=nlp
-        print("OrganizationExtractor loaded")
 
     def _remove_nested_entities(self, entities):
 

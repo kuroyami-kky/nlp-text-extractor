@@ -29,6 +29,11 @@ def print_organizations(title, organizations):
     for o in organizations:
         print(" ", o.text if hasattr(o, "text") else o)
 
+def print_persons(title, persons):
+    print(title)
+    for p in persons:
+        print(" ", p.text if hasattr(p, "text") else p)
+
 
 if __name__ == "__main__":
     pipeline = TextPipeline()
@@ -58,3 +63,7 @@ if __name__ == "__main__":
     print_organizations("组织(zh):", result["organizations"]["zh"])
     print_organizations("组织(es):", result["organizations"]["es"])
     print_organizations("组织(all):", result["organizations"]["all"])
+
+    print_persons("人物(zh):", result["persons"]["zh"])
+    print_persons("人物(es):", result["persons"]["es"])
+    print_persons("人物(all):", result["persons"]["all"])
