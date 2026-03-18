@@ -4,6 +4,7 @@ from app.extractor.geo_extractor.city_extractor import CityExtractor
 from app.extractor.number_extractor.number_extractor import NumberExtractor
 from app.extractor.organization_extractor.org_extractor import OrganizationExtractor
 from app.extractor.person_extractor.person_extractor import PersonExtractor
+from app.extractor.money_extractor.money_extractor import extract_money
 
 
 import spacy
@@ -97,6 +98,17 @@ class TextPipeline:
                 filtered.append(p)
 
         return filtered
+
+    def _filter_numbers_in_money(self, numbers, money_entities):
+        money_spans = {(m.start, m.end) for m in money_entities}
+
+        filtered = []
+
+        for n in numbers:
+            if not any(n.start >= m[0] and n.end <= m[1] for m in money_spans):
+                filtered.append(n)
+
+        return filtered
     
 
     def process(self, text: str):
@@ -129,6 +141,10 @@ class TextPipeline:
         numbers = numbers_zh + numbers_es
         numbers_all = self._deduplicate_entities(numbers)
         numbers_all = self._filter_numbers_in_dates(numbers_all, dates)
+        
+        money_entities = extract_money(text)
+
+        numbers_all = self._filter_numbers_in_money(numbers_all, money_entities)
 
         organizations_zh = self.org_extractor.extract(text, "zh")
         organizations_zh = self._deduplicate_entities(organizations_zh)
@@ -151,6 +167,8 @@ class TextPipeline:
         persons_es = self._deduplicate_entities(persons_es)
         persons = persons_zh + persons_es
         persons = self._deduplicate_entities(persons)
+
+        money_entities = extract_money(text)
        
 
 
@@ -185,6 +203,9 @@ class TextPipeline:
                 "zh": persons_zh,
                 "es": persons_es,
                 "all": persons
+            },
+            "money":{
+                "all":money_entities
             },
         }
         

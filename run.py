@@ -34,6 +34,11 @@ def print_persons(title, persons):
     for p in persons:
         print(" ", p.text if hasattr(p, "text") else p)
 
+def print_money(title, money):
+    print(title)
+    for m in money:
+        print(" ", m.text, "->", m.normalized, m.currency)
+
 
 if __name__ == "__main__":
     pipeline = TextPipeline()
@@ -67,3 +72,5 @@ if __name__ == "__main__":
     print_persons("人物(zh):", result["persons"]["zh"])
     print_persons("人物(es):", result["persons"]["es"])
     print_persons("人物(all):", result["persons"]["all"])
+
+    print_money("金额(all):", result["money"]["all"])
