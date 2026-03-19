@@ -6,6 +6,11 @@ def print_dates(title, dates):
     for d in dates:
         print(" ", d)
 
+def print_relative_dates(title, rel_dates):
+    print(title)
+    for d in rel_dates:
+        print(" ", d["text"], "->", d["normalized"])
+
 
 def print_countries(title, countries):
     print(title)
@@ -54,6 +59,10 @@ if __name__ == "__main__":
     print_dates("日期(zh):", result["dates"]["zh"])
     print_dates("日期(es):", result["dates"]["es"])
     print_dates("日期(all):", result["dates"]["all"])
+
+    print_relative_dates("相对时间(zh):", result["relative_dates"]["zh"])
+    print_relative_dates("相对时间(es):", result["relative_dates"]["es"])
+    print_relative_dates("相对时间(all):", result["relative_dates"]["all"])
 
     print_countries("国家(zh):", result["countries"]["zh"])
     print_countries("国家(es):", result["countries"]["es"])

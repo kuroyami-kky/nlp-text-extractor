@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 def normalize_zh(year: str, month: str | None, day: str | None):
     y = int(year)
     m = int(month) if month else None
@@ -29,3 +31,19 @@ def normalize_es(year: str, month: str | None, day: str | None):
     d = int(day) if day else None
 
     return y, m, d
+
+
+def normalize_relative_dates(entities):
+    today = datetime.today()
+    results = []
+
+    for ent in entities:
+        offset = ent["offset"]
+        norm_date = (today + timedelta(days=offset)).strftime("%Y-%m-%d")
+
+        results.append({
+            "text": ent["text"],
+            "normalized": norm_date
+        })
+
+    return results

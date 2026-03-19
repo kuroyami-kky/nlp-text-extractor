@@ -14,3 +14,33 @@ date_pattern_es = [
     r"(\w+)\s+de\s+(\d{4})" #样式： xx de xxxx
 
 ]
+
+relative_date_patterns_zh = {
+
+        "fixed": {
+            "今天": 0,
+            "昨天": -1,
+            "明天": 1,
+            "前天": -2,
+            "后天": 2,
+        },
+        "regex": [
+            r"(\d+)天前",
+            r"(\d+)天后",
+        ]
+}
+
+relative_date_patterns_es = {
+
+        "fixed": {
+            "hoy": 0,
+            "ayer": -1,
+            "mañana": 1,
+            "anteayer": -2,
+            "pasado mañana": 2,
+        },
+        "regex": [
+            r"hace (\d+) días",
+            r"en (\d+) días",
+        ]
+}

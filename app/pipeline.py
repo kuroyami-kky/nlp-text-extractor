@@ -1,10 +1,12 @@
-from app.extractor.date_extractor.extractor import DateExtractor
+from app.extractor.date_extractor.absolute_date_extractor import DateExtractor
 from app.extractor.geo_extractor.country_extractor import CountryExtractor
 from app.extractor.geo_extractor.city_extractor import CityExtractor
 from app.extractor.number_extractor.number_extractor import NumberExtractor
 from app.extractor.organization_extractor.org_extractor import OrganizationExtractor
 from app.extractor.person_extractor.person_extractor import PersonExtractor
 from app.extractor.money_extractor.money_extractor import extract_money
+from app.extractor.date_extractor.relative_date_extractor import extract_relative_date
+from app.extractor.date_extractor.normalizer import normalize_relative_dates
 
 
 import spacy
@@ -119,6 +121,13 @@ class TextPipeline:
         dates_es = self.date_extractor.extract(text, "es")
         dates = dates_zh + dates_es
 
+        
+        rel_zh_entities = extract_relative_date(text, "zh")
+        rel_es_entities = extract_relative_date(text, "es")
+        rel_zh = normalize_relative_dates(rel_zh_entities)
+        rel_es = normalize_relative_dates(rel_es_entities)
+        rel_all = rel_zh + rel_es
+
         countries_zh = self.country_extractor.extract(text, "zh")
         countries_zh = self._deduplicate_entities(countries_zh)
         countries_es = self.country_extractor.extract(text, "es")
@@ -178,6 +187,11 @@ class TextPipeline:
                 "zh": dates_zh,
                 "es": dates_es,
                 "all": dates
+            },
+            "relative_dates": {
+                "zh": rel_zh,
+                "es": rel_es,
+                "all": rel_all
             },
             "countries": {
                 "zh": countries_zh,
