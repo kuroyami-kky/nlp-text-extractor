@@ -7,7 +7,7 @@ from app.extractor.person_extractor.person_extractor import PersonExtractor
 from app.extractor.money_extractor.money_extractor import extract_money
 from app.extractor.date_extractor.relative_date_extractor import extract_relative_date
 from app.extractor.date_extractor.normalizer import normalize_relative_dates
-
+from app.extractor.percentage_extractor.percentage_extractor import PercentageExtractor
 
 import spacy
 
@@ -22,6 +22,7 @@ class TextPipeline:
         self.number_extractor = NumberExtractor(self.nlp)
         self.org_extractor = OrganizationExtractor(self.nlp)
         self.person_extractor = PersonExtractor(self.nlp)
+        self.percentage_extractor = PercentageExtractor()
 
     def detect_language(self, text: str):
         # 目前只是占位逻辑
@@ -112,6 +113,25 @@ class TextPipeline:
 
         return filtered
     
+    def _filter_numbers_in_percentages(self, numbers, percentage_entities):
+        filtered = []
+
+        for n in numbers:
+            overlap = False
+
+            for p in percentage_entities:
+                p_start = p["start"]
+                p_end = p["end"]
+
+                if n.start >= p_start and n.end <= p_end:
+                    overlap = True
+                    break
+
+            if not overlap:
+                filtered.append(n)
+
+        return filtered
+    
 
     def process(self, text: str):
         
@@ -152,8 +172,10 @@ class TextPipeline:
         numbers_all = self._filter_numbers_in_dates(numbers_all, dates)
         
         money_entities = extract_money(text)
+        percentage_entities = self.percentage_extractor.extract(text)
 
         numbers_all = self._filter_numbers_in_money(numbers_all, money_entities)
+        numbers_all = self._filter_numbers_in_percentages(numbers_all, percentage_entities)
 
         organizations_zh = self.org_extractor.extract(text, "zh")
         organizations_zh = self._deduplicate_entities(organizations_zh)
@@ -177,7 +199,6 @@ class TextPipeline:
         persons = persons_zh + persons_es
         persons = self._deduplicate_entities(persons)
 
-        money_entities = extract_money(text)
        
 
 
@@ -220,6 +241,9 @@ class TextPipeline:
             },
             "money":{
                 "all":money_entities
+            },
+            "percentages": {
+                "all": percentage_entities
             },
         }
         

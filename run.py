@@ -44,6 +44,13 @@ def print_money(title, money):
     for m in money:
         print(" ", m.text, "->", m.normalized, m.currency)
 
+def print_percentages(title, percentages):
+    print(title)
+    for p in percentages:
+        text = p.get("text")
+        value = p.get("value")
+        subtype = p.get("subtype")
+        print(" ", text, "->", value)
 
 if __name__ == "__main__":
     pipeline = TextPipeline()
@@ -83,3 +90,5 @@ if __name__ == "__main__":
     print_persons("人物(all):", result["persons"]["all"])
 
     print_money("金额(all):", result["money"]["all"])
+
+    print_percentages("百分比(all):", result["percentages"]["all"])
