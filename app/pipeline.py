@@ -8,7 +8,8 @@ from app.extractor.money_extractor.money_extractor import extract_money
 from app.extractor.date_extractor.relative_date_extractor import extract_relative_date
 from app.extractor.date_extractor.normalizer import normalize_relative_dates
 from app.extractor.percentage_extractor.percentage_extractor import PercentageExtractor
-
+from app.extractor.email_extractor.email_extractor import extract_emails
+from app.extractor.measurement_extractor.measurement_extractor import extract_measurements 
 import spacy
 
 class TextPipeline:
@@ -132,6 +133,44 @@ class TextPipeline:
 
         return filtered
     
+    def _filter_numbers_in_emails(self, numbers, email_entities):
+        filtered = []
+
+        for n in numbers:
+            overlap = False
+
+            for e in email_entities:
+                e_start = e["start"]
+                e_end = e["end"]
+
+                if n.start >= e_start and n.end <= e_end:
+                    overlap = True
+                    break
+
+            if not overlap:
+                filtered.append(n)
+
+        return filtered
+    
+    def _filter_numbers_in_measurements(self, numbers, measurement_entities):
+        filtered = []
+
+        for n in numbers:
+            overlap = False
+
+            for m in measurement_entities:
+                m_start = m["start"]
+                m_end = m["end"]
+
+                if n.start >= m_start and n.end <= m_end:
+                    overlap = True
+                    break
+
+            if not overlap:
+                filtered.append(n)
+
+        return filtered
+
 
     def process(self, text: str):
         
@@ -173,9 +212,13 @@ class TextPipeline:
         
         money_entities = extract_money(text)
         percentage_entities = self.percentage_extractor.extract(text)
+        emails = extract_emails(text)
+        measurement_entities = extract_measurements(text)
 
         numbers_all = self._filter_numbers_in_money(numbers_all, money_entities)
         numbers_all = self._filter_numbers_in_percentages(numbers_all, percentage_entities)
+        numbers_all = self._filter_numbers_in_emails(numbers_all, emails)
+        numbers_all = self._filter_numbers_in_measurements(numbers_all, measurement_entities)
 
         organizations_zh = self.org_extractor.extract(text, "zh")
         organizations_zh = self._deduplicate_entities(organizations_zh)
@@ -184,6 +227,8 @@ class TextPipeline:
         organizations  = organizations_zh + organizations_es
         organizations = self._deduplicate_entities(organizations)
         countries = self._filter_countries_in_orgs(countries, organizations)
+
+        
 
 
         persons_zh = []
@@ -245,6 +290,12 @@ class TextPipeline:
             "percentages": {
                 "all": percentage_entities
             },
+            "emails": {
+                "all": emails
+            },
+            "measurements": {
+                "all": measurement_entities
+            }
         }
         
 
